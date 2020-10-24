@@ -148,11 +148,11 @@ class Index {
         });
     }
     /**
-     * 上传 base64 图片
+     * 保存 base64 图片
      *
      * @param {String} base64Str 编码的字符串
      */
-    async saveBase64(base64Str) {
+    async saveBase64Image(base64Str) {
         await this.initSavePath();
         return new Promise((resolve, reject) => {
             let position = base64Str.indexOf(',');
