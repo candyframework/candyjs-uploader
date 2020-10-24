@@ -8,7 +8,7 @@ const TimeHelper = require("candyjs/helpers/TimeHelper");
 /**
  * 文件上传
  */
-class Uploader {
+class Index {
     constructor(options = null) {
         /**
          * @property {any} configs 配置
@@ -169,4 +169,4 @@ class Uploader {
         });
     }
 }
-exports.default = Uploader;
+exports.default = Index;
