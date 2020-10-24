@@ -173,7 +173,7 @@ export default class Index {
      *
      * @param {String} base64Str 编码的字符串
      */
-    public async saveBase64(base64Str): Promise<any> {
+    public async saveBase64(base64Str: string): Promise<any> {
         await this.initSavePath();
 
         return new Promise((resolve, reject) => {
