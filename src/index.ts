@@ -3,8 +3,8 @@ import * as fs from 'fs';
 import * as formidable from 'formidable';
 
 import * as FileHelper from 'candyjs/helpers/FileHelper';
-import * as StringHelper from 'candyjs/helpers/StringHelper';
 import * as TimeHelper from 'candyjs/helpers/TimeHelper';
+import * as StringHelper from 'candyjs/helpers/StringHelper';
 
 /**
  * 文件上传
@@ -16,7 +16,7 @@ export default class Index {
     public configs = {
         permission: 0o777,
         /**
-         * 保存文件的基准目录 如 '/www/upload' 不能为空
+         * 保存文件的基准目录 不能为空 如 '/www/upload'
          */
         basePath: '',
         subPath: '',
@@ -90,7 +90,7 @@ export default class Index {
     /**
      * 根据配置创建上传目录 basePath + subPath + rotatePattern
      */
-    private async initSavePath(): Promise<undefined> {
+    private async initSavePath(): Promise<any> {
         this.savePath = this.configs.basePath;
 
         if('' !== this.configs.subPath) {
