@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const formidable = require("formidable");
 const FileHelper = require("candyjs/helpers/FileHelper");
-const StringHelper = require("candyjs/helpers/StringHelper");
 const TimeHelper = require("candyjs/helpers/TimeHelper");
+const StringHelper = require("candyjs/helpers/StringHelper");
 /**
  * 文件上传
  */
@@ -16,7 +16,7 @@ class Index {
         this.configs = {
             permission: 0o777,
             /**
-             * 保存文件的基准目录 如 '/www/upload' 不能为空
+             * 保存文件的基准目录 不能为空 如 '/www/upload'
              */
             basePath: '',
             subPath: '',
@@ -33,12 +33,11 @@ class Index {
              */
             maxSize: 1048576,
             /**
-             * 随机生成文件名
+             * 随机生成文件名的长度
              */
-            useRandomName: true,
             fileNameLength: 20,
             /**
-             * 指定文件名 useRandomName === false 时生效
+             * 指定文件名
              */
             givenName: ''
         };
@@ -48,6 +47,9 @@ class Index {
         this.savePath = '';
         this.initOptions(options);
     }
+    /**
+     * @private
+     */
     initOptions(options = null) {
         if (null === options) {
             return;
@@ -60,11 +62,14 @@ class Index {
     }
     /**
      * 初始化文件名
+     *
+     * @private
      */
     generateFileName() {
         let str = 'abcdefghijklmnopqrstuvwxyz0123456789';
         let chars = '';
-        if (this.configs.useRandomName) {
+        // 没有指定名字 就随机生成一个
+        if ('' === this.configs.givenName) {
             // 14 是文件名的时间戳前缀
             for (let i = 0; i < this.configs.fileNameLength - 14; i++) {
                 chars += str[Math.floor(Math.random() * str.length)];
@@ -78,6 +83,8 @@ class Index {
     }
     /**
      * 根据配置创建上传目录 basePath + subPath + rotatePattern
+     *
+     * @private
      */
     async initSavePath() {
         this.savePath = this.configs.basePath;
@@ -96,8 +103,10 @@ class Index {
     /**
      * 上传文件
      *
+     * @private
      * @param {any} req
-     * @param {String} fileName 上传文件名
+     * @param {String} fileName 上传文件使用的名字
+     * @returns {Promise}
      */
     async upload(req, fileName) {
         await this.initSavePath();
@@ -151,6 +160,7 @@ class Index {
      * 保存 base64 图片
      *
      * @param {String} base64Str 编码的字符串
+     * @returns {Promise}
      */
     async saveBase64Image(base64Str) {
         await this.initSavePath();

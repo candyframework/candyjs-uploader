@@ -1,6 +1,6 @@
 {
   "name": "@candyjs/uploader",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "file uploader for candyjs",
   "main": "index.js",
   "scripts": {

@@ -33,12 +33,11 @@ export default class Index {
          */
         maxSize: 1048576,
         /**
-         * 随机生成文件名
+         * 随机生成文件名的长度
          */
-        useRandomName: true,
         fileNameLength: 20,
         /**
-         * 指定文件名 useRandomName === false 时生效
+         * 指定文件名
          */
         givenName: ''
     };
@@ -46,13 +45,16 @@ export default class Index {
     /**
      * @property {String} savePath 上传路径
      */
-    public savePath: string = '';
+    private savePath: string = '';
 
     constructor(options: any = null) {
         this.initOptions(options);
     }
 
-    initOptions(options: any = null): void {
+    /**
+     * @private
+     */
+    private initOptions(options: any = null): void {
         if(null === options) {
             return;
         }
@@ -67,17 +69,19 @@ export default class Index {
 
     /**
      * 初始化文件名
+     *
+     * @private
      */
     private generateFileName(): string {
         let str = 'abcdefghijklmnopqrstuvwxyz0123456789';
         let chars = '';
 
-        if(this.configs.useRandomName) {
+        // 没有指定名字 就随机生成一个
+        if('' === this.configs.givenName) {
             // 14 是文件名的时间戳前缀
             for(let i=0; i<this.configs.fileNameLength - 14; i++) {
                 chars += str[ Math.floor(Math.random() * str.length) ];
             }
-
             chars = chars + TimeHelper.format('ymdhis');
 
         } else {
@@ -89,6 +93,8 @@ export default class Index {
 
     /**
      * 根据配置创建上传目录 basePath + subPath + rotatePattern
+     *
+     * @private
      */
     private async initSavePath(): Promise<any> {
         this.savePath = this.configs.basePath;
@@ -111,8 +117,10 @@ export default class Index {
     /**
      * 上传文件
      *
+     * @private
      * @param {any} req
-     * @param {String} fileName 上传文件名
+     * @param {String} fileName 上传文件使用的名字
+     * @returns {Promise}
      */
     public async upload(req: any, fileName: string): Promise<any> {
         await this.initSavePath();
@@ -172,6 +180,7 @@ export default class Index {
      * 保存 base64 图片
      *
      * @param {String} base64Str 编码的字符串
+     * @returns {Promise}
      */
     public async saveBase64Image(base64Str: string): Promise<any> {
         await this.initSavePath();

@@ -26,7 +26,7 @@ module.exports = class UploadController {
             maxSize: 1048576,  // 1024 * 1024 = 1Mb
         });
 
-        let data = await up.upload(req, 'editorfile');
+        let data = await up.upload(req, 'myfile');
         res.end(JSON.stringify(data));
     }
 }
@@ -43,8 +43,8 @@ module.exports = class UploadController {
             // 必须参数
             basePath: './public/upload',
 
-            useRandomName: false,
-            givenName: '1'  // 使用指定的文件名
+            // 使用指定的文件名时 而非随机名字
+            givenName: 'abc'
         });
 
         let data = await up.upload(req, 'editorfile');
@@ -54,6 +54,10 @@ module.exports = class UploadController {
 ```
 
 ## CHANGELOG
+
++ 2020-10-30
+
+    * 0.1.2 优化代码
 
 + 2020-10-24
 
