@@ -18,7 +18,7 @@ const Uploader = require('@candyjs/uploader');
 module.exports = class UploadController {
     async run(req, res) {
         const up = new Uploader({
-            // 必须参数
+            // 必须参数 相对于入口脚本的路径
             basePath: './public/upload',
 
             // 可选参数
@@ -43,7 +43,7 @@ module.exports = class UploadController {
             // 必须参数
             basePath: './public/upload',
 
-            // 使用指定的文件名时 而非随机名字
+            // 使用指定的文件名 而非随机名字
             givenName: 'abc'
         });
 
