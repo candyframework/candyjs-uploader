@@ -96,7 +96,7 @@ export default class Index {
      *
      * @private
      */
-    private async initSavePath(): Promise<any> {
+    private initSavePath(): Promise<any> {
         this.savePath = this.configs.basePath;
 
         if('' !== this.configs.subPath) {
@@ -108,8 +108,13 @@ export default class Index {
         }
 
         return new Promise((resolve, reject) => {
-            FileHelper.createDirectory(this.savePath, this.configs.permission, () => {
-                resolve();
+            FileHelper.createDirectory(this.savePath, this.configs.permission, (err) => {
+                if(null !== err) {
+                    reject(err);
+
+                } else {
+                    resolve(null);
+                }
             });
         });
     }
@@ -123,18 +128,27 @@ export default class Index {
      * @returns {Promise}
      */
     public async upload(req: any, fileName: string): Promise<any> {
-        await this.initSavePath();
+        try {
+            await this.initSavePath();
+
+        } catch(err) {
+            return Promise.resolve({
+                status: 1001,
+                data: '',
+                message: err.message
+            });
+        }
 
         return new Promise((resolve, reject) => {
             const form = formidable({
                 uploadDir: this.savePath
             });
-            form.parse(req, (err, fields, files) => {
-                if(null !== err) {
+            form.parse(req, (error, fields, files) => {
+                if(null !== error) {
                     resolve({
-                        status: 1,
-                        data: null,
-                        message: err.message
+                        status: 2001,
+                        data: '',
+                        message: error.message
                     });
                     return;
                 }
@@ -145,8 +159,8 @@ export default class Index {
                 if(-1 === this.configs.allowTypes.indexOf(file.type)) {
                     fs.unlink(file.path, () => {});
                     resolve({
-                        status: 2,
-                        data: null,
+                        status: 3001,
+                        data: '',
                         message: 'The file type is not allowed'
                     });
                     return;
@@ -156,8 +170,8 @@ export default class Index {
                 if(file.size > this.configs.maxSize) {
                     fs.unlink(file.path, () => {});
                     resolve({
-                        status: 2,
-                        data: null,
+                        status: 3002,
+                        data: '',
                         message: 'The file size exceeds limit'
                     });
                     return;
@@ -166,6 +180,15 @@ export default class Index {
                 // ok
                 let newPath = this.savePath + '/' + this.generateFileName() + file.type.replace('image/', '.');
                 fs.rename(file.path, newPath, (err) => {
+                    if(null !== err) {
+                        resolve({
+                            status: 1002,
+                            data: '',
+                            message: err.message
+                        });
+                        return;
+                    }
+
                     resolve({
                         status: 0,
                         data: newPath.replace(this.configs.basePath, ''),
@@ -183,7 +206,16 @@ export default class Index {
      * @returns {Promise}
      */
     public async saveBase64Image(base64Str: string): Promise<any> {
-        await this.initSavePath();
+        try {
+            await this.initSavePath();
+
+        } catch(err) {
+            return Promise.resolve({
+                status: 1001,
+                data: '',
+                message: err.message
+            });
+        }
 
         return new Promise((resolve, reject) => {
             let position = base64Str.indexOf(',');
@@ -192,6 +224,15 @@ export default class Index {
             let newPath = this.savePath + '/' + this.generateFileName() + ext;
 
             fs.writeFile(newPath, dataBuffer, (err) => {
+                if(null !== err) {
+                    resolve({
+                        status: 1002,
+                        data: '',
+                        message: err.message
+                    });
+                    return;
+                }
+
                 resolve({
                     status: 0,
                     data: newPath.replace(this.configs.basePath, ''),
