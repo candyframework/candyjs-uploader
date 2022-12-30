@@ -1,3 +1,3 @@
-const View = require('./src/index');
+const Uploader = require('./src/index');
 
-module.exports = View.default;
+module.exports = Uploader.default;

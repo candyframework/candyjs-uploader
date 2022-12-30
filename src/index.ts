@@ -10,6 +10,11 @@ import * as StringHelper from 'candyjs/helpers/StringHelper';
  * 文件上传
  */
 export default class Index {
+    static ERROR_INTERNAL = 5000;
+    static ERROR_FRAMEWORK = 1000;
+    static ERROR_OVER_FILESIZE = 2000;
+    static ERROR_UNSUPPORT_FILETYPE = 2001;
+
     /**
      * @property {any} configs 配置
      */
@@ -31,7 +36,7 @@ export default class Index {
         /**
          * Byte - 1 MB
          */
-        maxSize: 1048576,
+        maxFileSize: 1048576,
         /**
          * 随机生成文件名的长度
          */
@@ -133,7 +138,7 @@ export default class Index {
 
         } catch(err) {
             return Promise.resolve({
-                status: 1001,
+                status: Index.ERROR_INTERNAL,
                 data: '',
                 message: err.message
             });
@@ -141,48 +146,49 @@ export default class Index {
 
         return new Promise((resolve, reject) => {
             const form = formidable({
-                uploadDir: this.savePath
+                uploadDir: this.savePath,
+                maxFileSize: this.configs.maxFileSize
             });
             form.parse(req, (error, fields, files) => {
                 if(null !== error) {
-                    resolve({
-                        status: 2001,
-                        data: '',
-                        message: error.message
-                    });
+                    // size limit
+                    if(formidable.errors.biggerThanMaxFileSize === error.code) {
+                        resolve({
+                            status: Index.ERROR_OVER_FILESIZE,
+                            data: '',
+                            message: 'The file size exceeds limit'
+                        });
+
+                    } else {
+                        resolve({
+                            status: Index.ERROR_FRAMEWORK,
+                            data: '',
+                            message: error.message
+                        });
+                    }
+
                     return;
                 }
 
                 let file = files[fileName];
 
                 // type
-                if(-1 === this.configs.allowTypes.indexOf(file.type)) {
-                    fs.unlink(file.path, () => {});
+                if(-1 === this.configs.allowTypes.indexOf(file.mimetype)) {
+                    fs.unlink(file.filepath, () => {});
                     resolve({
-                        status: 3001,
+                        status: Index.ERROR_UNSUPPORT_FILETYPE,
                         data: '',
                         message: 'The file type is not allowed'
                     });
                     return;
                 }
 
-                // size
-                if(file.size > this.configs.maxSize) {
-                    fs.unlink(file.path, () => {});
-                    resolve({
-                        status: 3002,
-                        data: '',
-                        message: 'The file size exceeds limit'
-                    });
-                    return;
-                }
-
                 // ok
-                let newPath = this.savePath + '/' + this.generateFileName() + file.type.replace('image/', '.');
-                fs.rename(file.path, newPath, (err) => {
+                let newPath = this.savePath + '/' + this.generateFileName() + file.mimetype.replace('image/', '.');
+                fs.rename(file.filepath, newPath, (err) => {
                     if(null !== err) {
                         resolve({
-                            status: 1002,
+                            status: Index.ERROR_INTERNAL,
                             data: '',
                             message: err.message
                         });
@@ -211,7 +217,7 @@ export default class Index {
 
         } catch(err) {
             return Promise.resolve({
-                status: 1001,
+                status: Index.ERROR_INTERNAL,
                 data: '',
                 message: err.message
             });
@@ -226,7 +232,7 @@ export default class Index {
             fs.writeFile(newPath, dataBuffer, (err) => {
                 if(null !== err) {
                     resolve({
-                        status: 1002,
+                        status: Index.ERROR_INTERNAL,
                         data: '',
                         message: err.message
                     });

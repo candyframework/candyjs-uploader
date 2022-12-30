@@ -23,7 +23,7 @@ module.exports = class UploadController {
 
             // 可选参数
             allowTypes: 'image/jpg, image/jpeg, image/png',
-            maxSize: 1048576,  // 1024 * 1024 = 1Mb
+            maxFileSize: 1048576,  // 1024 * 1024 = 1Mb
         });
 
         let data = await up.upload(req, 'myfile');
@@ -54,6 +54,10 @@ module.exports = class UploadController {
 ```
 
 ## CHANGELOG
+
++ 2022-12-30
+
+    * 0.2.2 升级版本
 
 + 2020-10-30
 
